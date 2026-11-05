@@ -338,6 +338,15 @@ callback: (response) => {
 
     });
 
+    sheetsButton.addEventListener('click', () => {
+      sheetsStatus.textContent =
+        'Waiting for Google Sheets read-only authorization...';
+
+      sheetsTokenClient.requestAccessToken({
+        prompt: 'consent'
+      });
+    });
+
     // Keep the connection disabled until integration is ready.
     sheetsButton.disabled = true;
   }
