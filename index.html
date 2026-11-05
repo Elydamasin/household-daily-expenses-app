@@ -10,7 +10,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#0b1221">
-  <meta name="description" content="HOMEEXPENSE — Household Expenses finance dashboard prototype">
+  <meta name="description" content="HOMEEXPENSE — Household budget dashboard with Google Sheets and Tally expense entry">
   <title>HOMEEXPENSE | Household Expenses</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -108,6 +108,7 @@
     .amount-row input { min-width:0; }
     .notice { background:#203747; color:#b9e5e1; font-size:12px; border-radius:11px; padding:12px 13px; margin-bottom:15px; }
     .primary { border:0; border-radius:12px; background:var(--teal); color:#09242b; font-weight:800; padding:14px; min-height:49px; }
+    button:disabled { cursor:not-allowed; opacity:.55; }
     .secondary { border:1px solid #4c6875; border-radius:11px; background:#203a49; color:#c5eae6; font-weight:700; padding:11px 13px; }
     .dual { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; }
     .chart-card { min-width:0; padding:13px; }
@@ -149,22 +150,22 @@
     <div class="brand"><div class="eyebrow">HOMEEXPENSE</div><h1>Household Expenses</h1></div>
     <button class="top-icon" type="button" data-open="alerts" aria-label="View budget alerts">♧</button>
   </header>
-  <div class="proto">DESIGN PROTOTYPE · SAMPLE DATA ONLY</div>
+  <div class="proto" id="app-mode">LIVE DASHBOARD · CONNECT TO GOOGLE SHEETS</div>
 
   <section id="page-home" class="page active">
-    <div class="month-label" id="month-label">NOVEMBER 2026</div>
+    <div class="month-label" id="month-label">NOT CONNECTED</div>
     <h2>Financial Overview</h2>
     <p class="home-subtitle">Your household finances at a glance.</p>
     <button class="budget-hero" type="button" data-open="budget">
       <span class="hero-top"><span>Available Monthly Budget</span><span class="arrow" aria-hidden="true">›</span></span>
-      <div class="hero-amount" id="remaining-total">₱56,550</div>
-      <div class="hero-stats"><span id="spent-summary">₱23,450 spent</span><span id="used-percent">29.3% used</span></div>
-      <div class="track"><div class="track-fill" id="spending-bar" style="width:29.3%"></div></div>
+      <div class="hero-amount" id="remaining-total">—</div>
+      <div class="hero-stats"><span id="spent-summary">Connect Google Sheets to view spending</span><span id="used-percent">—</span></div>
+      <div class="track"><div class="track-fill" id="spending-bar" style="width:0%"></div></div>
       <div class="hero-footer">Tap to view category budgets and spending limits</div>
     </button>
     <div class="mini-grid">
-      <div class="mini-card"><div class="small">Monthly budget</div><strong id="budget-total">₱80,000</strong></div>
-      <div class="mini-card"><div class="small">Total spent</div><strong id="spent-total">₱23,450</strong></div>
+      <div class="mini-card"><div class="small">Monthly budget</div><strong id="budget-total">—</strong></div>
+      <div class="mini-card"><div class="small">Total spent</div><strong id="spent-total">—</strong></div>
     </div>
     <div class="warning" id="home-warning" role="status"></div>
     <div class="quick-grid">
@@ -174,12 +175,20 @@
       <button class="quick-link" type="button" data-open="budget"><span class="quick-icon">◎</span><span class="quick-title">My Budget</span><span class="quick-caption">Limits by category</span><span class="quick-arrow">↗</span></button>
     </div>
     <div class="section-header"><h3>Recent Transactions</h3><button type="button" class="link-btn" data-open="history">View All →</button></div>
-    <div class="card" id="recent-list"></div>
+    <div class="card" id="recent-list"><div class="empty">Connect your spreadsheet to view actual purchases.</div></div>
   </section>
 
   <section id="page-add" class="page content-page">
     <div class="page-head"><h2>Add Daily Expense</h2><div class="muted">Record a purchase in your household ledger.</div></div>
-    <div class="notice">DEMO MODE — Entries are temporary and are not submitted to Google Sheets or Tally.</div>
+    <div class="notice" id="expense-save-notice">HOMEEXPENSE displays your real budget. To record a new expense, use the Tally form connected to your existing Make.com automation. Direct app saving is not enabled yet.</div>
+    <div class="card" style="margin-bottom:14px">
+      <h3>Record a Real Expense</h3>
+      <p class="muted">Your existing Tally form saves expenses through Make.com to your household Google Sheet. This does not submit anything twice.</p>
+      <button class="primary" type="button" id="open-tally-btn" style="width:100%">OPEN TALLY EXPENSE FORM ↗</button>
+      <p class="muted" id="tally-add-status" aria-live="polite" style="margin:10px 0 0">Set your Tally form link in Settings once on this device.</p>
+    </div>
+    <details style="margin:14px 0;color:var(--muted)"><summary style="cursor:pointer">Future direct-add form (not active)</summary>
+
     <form class="form-grid" id="expense-form">
       <div class="form-row"><label>Date<input type="date" name="date" id="expense-date" required></label><label>Spent By<select name="who"><option>Ely</option><option>Rianne</option></select></label></div>
       <label>Expense Category<select name="category" id="category-select" required></select></label>
@@ -187,36 +196,37 @@
       <label>Amount (₱)<span class="amount-row"><input type="number" name="amount" id="amount-input" min="0.01" step="0.01" placeholder="0.00" required><button type="button" class="secondary" id="open-calculator" aria-label="Open calculator">▦</button></span></label>
       <label>Payment Method<select name="method"><option>Cash</option><option>GCash</option><option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option><option>Other</option></select></label>
       <label>Notes (optional)<textarea name="notes" placeholder="Additional details"></textarea></label>
-      <button class="primary" type="submit">SAVE DEMO EXPENSE</button>
+      <button class="primary" type="submit" disabled title="Use the Tally button above to record real expenses">SAVE EXPENSE</button>
     </form>
+    </details>
   </section>
 
   <section id="page-history" class="page content-page">
     <div class="page-head"><h2>Expense History</h2><p class="muted">Browse and search household purchases.</p></div>
-    <div class="notice">Sample records plus any demo expenses added during this visit.</div>
+    <div class="notice" id="history-notice">Connect Google Sheets to see ACTUAL expenses. TEST rows will never be shown.</div>
     <label>Search transactions<input id="history-search" placeholder="Search item or category"></label>
-    <div class="card" id="history-list" style="margin-top:14px"></div>
+    <div class="card" id="history-list" style="margin-top:14px"><div class="empty">No spreadsheet connected.</div></div>
   </section>
 
   <section id="page-insights" class="page content-page">
     <div class="page-head"><h2>Spending Analytics</h2><div class="muted">A clear picture of where your money goes.</div></div>
-    <div class="card" style="margin-bottom:13px"><div class="muted">Total Spent</div><div style="font-size:30px;font-weight:750;margin:7px 0" id="insight-total">₱23,450</div><div class="muted" id="insight-percentage">29.3% of monthly budget used</div></div>
+    <div class="card" style="margin-bottom:13px"><div class="muted">Total Spent</div><div style="font-size:30px;font-weight:750;margin:7px 0" id="insight-total">—</div><div class="muted" id="insight-percentage">Connect your spreadsheet to see analytics</div></div>
     <div class="dual">
-      <div class="card chart-card"><h3>Spending Trend</h3><svg id="trend-chart" class="trend-svg" viewBox="0 0 300 150" role="img" aria-label="Cumulative expenses trend"><line class="axis" x1="20" y1="130" x2="285" y2="130"/><line class="axis" x1="20" y1="15" x2="20" y2="130"/><path class="area" id="trend-area" d=""/><path class="plot" id="trend-line" d=""/></svg><div class="muted">Illustrative expense timeline</div></div>
-      <div class="card chart-card"><h3>Category Breakdown</h3><div class="donut" id="donut"><div class="donut-center"><strong id="donut-total">₱23,450</strong><span>SPENT</span></div></div><div class="muted" style="text-align:center">Spending distribution</div></div>
+      <div class="card chart-card"><h3>Spending Trend</h3><svg id="trend-chart" class="trend-svg" viewBox="0 0 300 150" role="img" aria-label="Cumulative expenses trend"><line class="axis" x1="20" y1="130" x2="285" y2="130"/><line class="axis" x1="20" y1="15" x2="20" y2="130"/><path class="area" id="trend-area" d=""/><path class="plot" id="trend-line" d=""/></svg><div class="muted">Dated ACTUAL transactions for the selected month</div></div>
+      <div class="card chart-card"><h3>Category Breakdown</h3><div class="donut" id="donut"><div class="donut-center"><strong id="donut-total">—</strong><span>SPENT</span></div></div><div class="muted" style="text-align:center">Spending distribution</div></div>
     </div>
   </section>
 
   <section id="page-budget" class="page content-page">
     <div class="page-head"><h2>My Budget</h2><p class="muted">Your category spending limits and remaining amounts.</p></div>
-    <div class="notice">Sample spending is compared against your planned ₱80,000 budget.</div>
+    <div class="notice" id="budget-notice">Category limits and actual spending will come directly from your Dashboard sheet.</div>
     <div class="card"><h3>Category Budgets</h3><div id="category-budget-list"></div></div>
   </section>
 
   <section id="page-alerts" class="page content-page">
     <div class="page-head"><h2>Budget Alerts</h2><p class="muted">Warnings for categories reaching 80% or more of their limits.</p></div>
-    <div class="notice">Demo alerts only. Phone push notifications are not enabled.</div>
-    <div id="alert-list"></div>
+    <div class="notice">Read-only budget alerts use Dashboard category totals. Phone push notifications are not enabled.</div>
+    <div id="alert-list"><div class="empty">Connect your spreadsheet for real category alerts.</div></div>
   </section>
 
   <section id="page-settings" class="page content-page">
@@ -225,9 +235,13 @@
 <div class="card" id="google-auth-card" style="margin-bottom:13px">
   <h3>Google Account</h3>
   <p class="muted" id="google-auth-status" aria-live="polite">
-    Not connected. Google sign-in is being prepared.
+    Google sign-in is optional for the dashboard. Google Sheets access requires a separate Google permission.
   </p>
   <div id="google-signin-container"></div>
+  <label for="spreadsheet-input" style="margin-top:16px">Household spreadsheet link or ID
+    <input id="spreadsheet-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your private Google Sheets URL or spreadsheet ID">
+  </label>
+  <p class="muted" style="margin-top:9px">Enter it here privately; it will not be committed to GitHub or stored on this device.</p>
   
 <button
   type="button"
@@ -247,12 +261,23 @@
 >
   Not connected. No spreadsheet access has been granted.
 </p>
+<p class="muted" style="margin-top:10px">Google’s read-only permission can cover all spreadsheets accessible to the account you choose. HOMEEXPENSE will request data only from the spreadsheet link you enter.</p>
 
 </div>
 
-    <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Ely and Rianne</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
-    <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budget limits come from the planned ₱80,000 allocation. This prototype does not edit your actual Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
-    <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are active for sample spending. Phone notifications require later setup.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
+    <div class="card" style="margin-bottom:13px" id="tally-settings-card">
+      <h3>Tally Expense Form</h3>
+      <p class="muted">Paste your existing Tally form's public/share link. It is saved only in this browser on this device, not in GitHub. The form still uses your existing Make.com flow.</p>
+      <label for="tally-link-input">Tally form link
+        <input id="tally-link-input" type="url" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="https://tally.so/r/your-form-code">
+      </label>
+      <button class="secondary" id="save-tally-link-btn" type="button" style="margin-top:11px">SAVE TALLY LINK ON THIS DEVICE</button>
+      <p class="muted" id="tally-link-status" aria-live="polite" style="margin-top:9px">Not set yet.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Ely and Rianne</div><div class="muted">Access is enforced by your private Google Sheet sharing and OAuth permissions. This dashboard requires permission to the private Google Sheet; app expense entry opens your existing Tally form.</div></div>
+    <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budgets and category spending come from the existing Dashboard worksheet. This app never edits Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
+    <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are read-only. Existing email notifications remain managed by your current automations.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
   </section>
 </main>
 
@@ -285,164 +310,395 @@
   
 const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergskkv.apps.googleusercontent.com';
 
-window.addEventListener('load', () => {
-  const status = document.getElementById('google-auth-status');
-  const container = document.getElementById('google-signin-container');
+  // OAuth Client ID is intentionally public. Never include a client secret or token here.
+  // This read-only test uses Google's own account permissions to guard the spreadsheet.
+  window.addEventListener('load', () => {
+    const identityStatus = document.getElementById('google-auth-status');
+    const identityContainer = document.getElementById('google-signin-container');
+    const sheetsButton = document.getElementById('connect-sheets-btn');
+    const sheetsStatus = document.getElementById('sheets-connection-status');
+    const spreadsheetInput = document.getElementById('spreadsheet-input');
+    if (!identityStatus || !identityContainer || !sheetsButton || !sheetsStatus || !spreadsheetInput) return;
 
-  if (!status || !container) return;
+    // Permit only our known development and GitHub Pages origins. Google OAuth
+    // and private spreadsheet sharing enforce data access; this is not login security.
+    const localTest =
+      (window.location.hostname === 'localhost' && ['8000','8001'].includes(window.location.port)) ||
+      (window.location.origin === 'https://elydamasin.github.io' &&
+       window.location.pathname.startsWith('/household-daily-expenses-app/'));
+    sheetsButton.disabled = !localTest;
+    if (!localTest) {
+      sheetsStatus.textContent = 'Google Sheets connection is available only on the official HOMEEXPENSE test or GitHub Pages site.';
+    }
+    if (!window.google?.accounts?.id || !window.google?.accounts?.oauth2) {
+      identityStatus.textContent = 'Google sign-in is unavailable; check internet connection or reload.';
+      sheetsButton.disabled = true;
+      return;
+    }
+    google.accounts.id.initialize({
+      client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
+      callback: (response) => {
+        identityStatus.textContent = response?.credential
+          ? 'Google identity response received. Household-server verification is not yet configured.'
+          : 'Google sign-in was not completed.';
+      },
+      auto_select: false
+    });
+    google.accounts.id.renderButton(identityContainer, { theme: 'outline', size: 'large', text: 'signin_with' });
 
-  if (!window.google?.accounts?.id) {
-    status.textContent = 'Google sign-in is unavailable. Please reload.';
-    return;
-  }
-
-  google.accounts.id.initialize({
-    client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
-    callback: (response) => {
-      if (!response || !response.credential) {
-        status.textContent = 'Google sign-in was not completed.';
-        return;
-      }
-
-      status.textContent =
-        'Google sign-in response received. Secure verification is not yet enabled.';
-    },
-    auto_select: false
-  });
-
-  google.accounts.id.renderButton(container, {
-    theme: 'outline',
-    size: 'large',
-    text: 'signin_with'
-  });
-  // Prepare Google Sheets read-only authorization.
-  // This does not request access yet.
-  const sheetsButton = document.getElementById('connect-sheets-btn');
-  const sheetsStatus = document.getElementById('sheets-connection-status');
-
-  if (window.google?.accounts?.oauth2 && sheetsButton && sheetsStatus) {
-    const sheetsTokenClient = google.accounts.oauth2.initTokenClient({
+    let requestedSpreadsheetId = '';
+    let busy = false;
+    const tokenClient = google.accounts.oauth2.initTokenClient({
       client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
-      
-callback: (response) => {
-  if (response?.error || !response?.access_token) {
-    sheetsStatus.textContent =
-      'Google Sheets authorization was not completed.';
-    return;
-  }
-
-  sheetsStatus.textContent =
-    'Read-only permission granted. No spreadsheet data has been loaded.';
-}
-
+      callback: async (response) => {
+        if (response?.error || !response?.access_token) {
+          sheetsStatus.textContent = 'Google authorization was canceled or not completed.';
+          busy = false;
+          sheetsButton.disabled = !localTest;
+          return;
+        }
+        // Access token remains in this callback only; it is never saved or logged.
+        sheetsStatus.textContent = 'Permission granted. Loading your specified spreadsheet...';
+        try {
+          const data = await readHouseholdSpreadsheet(response.access_token, requestedSpreadsheetId);
+          applyLiveData(data);
+          sheetsStatus.textContent = `Read-only connection successful. ${data.expenses.length} ACTUAL transactions loaded.`;
+          // An approved token is deliberately not persisted. Reconnect to refresh data.
+        } catch (err) {
+          resetLiveData();
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          sheetsStatus.textContent = `Unable to load spreadsheet: ${message}`;
+        } finally {
+          busy = false;
+          sheetsButton.disabled = !localTest;
+        }
+      },
+      error_callback: () => {
+        sheetsStatus.textContent = 'Google sign-in window closed or blocked. No data was loaded.';
+        busy = false;
+        sheetsButton.disabled = !localTest;
+      }
     });
 
     sheetsButton.addEventListener('click', () => {
-      sheetsStatus.textContent =
-        'Waiting for Google Sheets read-only authorization...';
-
-      sheetsTokenClient.requestAccessToken({
-        prompt: 'consent'
-      });
+      if (!localTest || busy) return;
+      const id = extractSpreadsheetId(spreadsheetInput.value);
+      if (!id) {
+        sheetsStatus.textContent = 'Paste a valid Google Sheets URL or spreadsheet ID first.';
+        spreadsheetInput.focus();
+        return;
+      }
+      requestedSpreadsheetId = id;
+      busy = true;
+      sheetsButton.disabled = true;
+      sheetsStatus.textContent = 'Waiting for Google to grant read-only permission...';
+      tokenClient.requestAccessToken({ prompt: 'consent' });
     });
-
-
- // Enable authorization testing only on localhost:8001.
-
-sheetsButton.disabled = !(
-  window.location.hostname === 'localhost' &&
-  window.location.port === '8001'
-);
-  }
-
-});
-
-  const BUDGETS = {
-    'Condominium Rent': 30000, 'Electricity': 10000, 'Food': 20000,
-    'Transportation': 3000, 'Internet': 1600, 'Water': 500,
-    'Pet': 1500, 'Personal': 4000, 'Eating Out': 3500,
-    'LPG': 1700, 'Home Essentials': 3000, 'Savings': 1200
-  };
-  const money = n => '₱' + Number(n).toLocaleString('en-PH', {maximumFractionDigits:2,minimumFractionDigits:0});
-  const today = new Date();
-  const localDate = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
-  const daysAgo = n => { const d = new Date(today); d.setDate(d.getDate()-n); return localDate(d); };
-  const expenses = [
-    {date:daysAgo(10),category:'Condominium Rent',item:'Rent (sample)',amount:15000,who:'Ely',method:'Bank Transfer'},
-    {date:daysAgo(4),category:'Food',item:'Groceries (sample)',amount:3500,who:'Rianne',method:'GCash'},
-    {date:daysAgo(3),category:'Electricity',item:'Electric bill (sample)',amount:2000,who:'Ely',method:'Bank Transfer'},
-    {date:daysAgo(1),category:'Transportation',item:'Transport fares (sample)',amount:2600,who:'Ely',method:'Cash'},
-    {date:daysAgo(0),category:'Eating Out',item:'Coffee (sample)',amount:350,who:'Rianne',method:'GCash'}
-  ];
-  const budgetTotal = Object.values(BUDGETS).reduce((a,b)=>a+b,0);
-  const el = id => document.getElementById(id);
-  const sum = arr => Math.round(arr.reduce((a,e)=>a+e.amount,0)*100)/100;
-  const totalFor = c => sum(expenses.filter(e=>e.category===c));
-  const text = (node,value) => { node.textContent = value; };
-  const escapeHtml = value => String(value).replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
-
-  const categorySelect=el('category-select');
-  Object.keys(BUDGETS).forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;categorySelect.appendChild(o)});
-  el('expense-date').value=daysAgo(0);
-  document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>navigate(button.dataset.open)));
-  function navigate(name){
-    document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
-    document.querySelectorAll('.nav-btn').forEach(b=>{const active=b.dataset.open===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-    window.scrollTo({top:0,behavior:'auto'});
-  }
-  function transactionMarkup(e){return `<div class="transaction"><span class="tx-icon" aria-hidden="true">▤</span><div class="tx-copy"><strong>${escapeHtml(e.item)}</strong><div class="small">${escapeHtml(e.category)} · ${escapeHtml(e.date)} · ${escapeHtml(e.who)}</div></div><span class="amount">−${money(e.amount)}</span></div>`;}
-  function warnings(){
-    return Object.entries(BUDGETS).map(([name,limit])=>({name,limit,used:totalFor(name),pct:Math.round(100*totalFor(name)/limit)})).filter(x=>x.pct>=80).sort((a,b)=>b.pct-a.pct);
-  }
-  function paint(){
-    const spent=sum(expenses),pct=100*spent/budgetTotal,remaining=budgetTotal-spent;
-    text(el('budget-total'),money(budgetTotal));text(el('spent-total'),money(spent));text(el('remaining-total'),money(remaining));text(el('donut-total'),money(spent));
-    text(el('insight-total'),money(spent));text(el('insight-percentage'),pct.toFixed(1)+'% of monthly budget used');
-    text(el('spent-summary'),money(spent)+' spent');
-    text(el('used-percent'),pct.toFixed(1)+'% used');
-    el('spending-bar').style.width=Math.max(0,Math.min(100,pct)).toFixed(1)+'%';
-    text(el('month-label'),today.toLocaleString('en-US',{month:'long',year:'numeric'}).toUpperCase());
-    const w=warnings();
-    const topWarning=spent>budgetTotal?{name:'Monthly budget exceeded',pct:Math.round(pct),used:spent,limit:budgetTotal}:spent>=budgetTotal*.8?{name:'Monthly budget nearing its limit',pct:Math.round(pct),used:spent,limit:budgetTotal}:w[0];
-    if(topWarning){el('home-warning').classList.remove('ok');el('home-warning').innerHTML=`<span class="alert-symbol">⚠</span><div class="warning-message"><strong>${topWarning.name==='Monthly budget exceeded'?'MONTHLY BUDGET EXCEEDED':topWarning.name==='Monthly budget nearing its limit'?'MONTHLY BUDGET WARNING':'CATEGORY BUDGET WARNING'}</strong>${escapeHtml(topWarning.name)} has reached ${topWarning.pct}% of its limit.</div><span class="rate">${topWarning.pct}%</span>`;}
-    else{el('home-warning').classList.add('ok');el('home-warning').innerHTML='<span class="alert-symbol">✓</span><div class="warning-message"><strong>SPENDING ON TRACK</strong>No category has reached 80% of its limit.</div>';}
-    const sorted=expenses.slice().sort((a,b)=>b.date.localeCompare(a.date));
-    el('recent-list').innerHTML=sorted.slice(0,4).map(transactionMarkup).join('');
-    renderHistory();
-    const colors=['#1bdcf3','#8472fa','#ffb166','#11ceb3','#ef70c4','#5286db','#e1d578'];
-    const vals=Object.keys(BUDGETS).map(c=>totalFor(c)).filter(x=>x>0);
-    let cursor=0;const slices=vals.map((v,i)=>{const a=cursor;cursor+=v/spent*100;return `${colors[i%colors.length]} ${a.toFixed(2)}% ${cursor.toFixed(2)}%`});
-    el('donut').style.background=spent>0?'conic-gradient('+slices.join(',')+')':'conic-gradient(#164861 0 100%)';
-    const list=Object.entries(BUDGETS).map(([name,limit])=>{const used=totalFor(name),ratio=used/limit;return `<div class="budget-row"><div class="budget-head"><span>${escapeHtml(name)}</span><span style="color:${ratio>=.8?'#ffba77':'#8fefff'}">${Math.round(ratio*100)}%</span></div><div class="track"><div class="track-fill ${ratio>=.8?'hot':''}" style="width:${Math.min(100,ratio*100)}%"></div></div><div class="small">${money(used)} spent / ${money(limit)} limit</div></div>`}).join('');
-    el('category-budget-list').innerHTML=list;
-    const allAlerts=[];
-    if(pct>=80)allAlerts.push({name:'Total Monthly Budget',pct:Math.round(pct),used:spent,limit:budgetTotal});
-    allAlerts.push(...w);
-    el('alert-list').innerHTML=allAlerts.length?allAlerts.map(a=>`<div class="alert-list-item ${a.pct>100?'danger':''}"><strong>${escapeHtml(a.name)} · ${a.pct}% used</strong><div>${money(a.used)} of ${money(a.limit)} limit</div><div class="small">${a.pct>100?'Exceeded by '+money(a.used-a.limit):'Remaining '+money(a.limit-a.used)}</div></div>`).join(''):'<div class="holo empty">✓ No demo budget warnings at the moment.</div>';
-    renderTrend();
-  }
-  function renderTrend(){
-    const ordered=expenses.slice().sort((a,b)=>a.date.localeCompare(b.date));let acc=0;const totals=[0,...ordered.map(e=>(acc+=e.amount))];const max=Math.max(1,...totals);
-    const coords=totals.map((v,i)=>[20+(265*i/Math.max(1,totals.length-1)),130-(v/max)*108]);
-    const line=coords.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
-    el('trend-line').setAttribute('d',line);
-    el('trend-area').setAttribute('d',line+' L 285 130 L 20 130 Z');
-  }
-  function renderHistory(){
-    const query=el('history-search').value.trim().toLowerCase();
-    const filtered=expenses.filter(e=>(e.item+' '+e.category+' '+e.who+' '+e.date).toLowerCase().includes(query)).sort((a,b)=>b.date.localeCompare(a.date));
-    el('history-list').innerHTML=filtered.length?filtered.map(transactionMarkup).join(''):'<div class="empty">No matching transactions.</div>';
-  }
-  el('history-search').addEventListener('input',renderHistory);
-  el('expense-form').addEventListener('submit',event=>{
-    event.preventDefault();const f=new FormData(event.currentTarget);const amount=Number(f.get('amount'));
-    if(!Number.isFinite(amount)||amount<=0||amount>100000000){alert('Please enter a valid positive expense amount.');return;}
-    expenses.push({date:String(f.get('date')),category:String(f.get('category')),item:String(f.get('item')).trim(),amount:Math.round(amount*100)/100,who:String(f.get('who')),method:String(f.get('method'))});
-    event.currentTarget.reset();el('expense-date').value=daysAgo(0);paint();navigate('home');alert('Demo expense added! This entry will disappear when you reload. No real financial data was saved.');
   });
 
-  // Small in-app calculator; no external libraries or stored data.
+  function extractSpreadsheetId(value) {
+    const input = String(value || '').trim();
+    const match = input.match(/^https:\/\/docs\.google\.com\/spreadsheets\/d\/([A-Za-z0-9_-]+)/);
+    const id = match ? match[1] : input;
+    return /^[A-Za-z0-9_-]{20,}$/.test(id) ? id : '';
+  }
+
+  function sheetNumber(value, name) {
+    if (typeof value === 'number' && Number.isFinite(value)) return value;
+    if (typeof value === 'string' && value.trim()) {
+      const result = Number(value.replace(/[₱,\s]/g, '').replace(/%$/, ''));
+      if (Number.isFinite(result)) return result;
+    }
+    throw new Error('Invalid or missing numeric value in ' + name);
+  }
+
+  function sheetDate(value) {
+    if (value === null || value === undefined || String(value).trim() === '') return '';
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      return new Date(Date.UTC(1899, 11, 30) + Math.floor(value) * 86400000).toISOString().slice(0, 10);
+    }
+    const s = String(value).trim();
+    const match = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+    if (match) return [match[1], match[2].padStart(2,'0'), match[3].padStart(2,'0')].join('-');
+    const numeric = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (numeric) return [numeric[3],numeric[1].padStart(2,'0'),numeric[2].padStart(2,'0')].join('-');
+    const dt = new Date(s);
+    return Number.isNaN(dt.getTime()) ? '' : [dt.getFullYear(),String(dt.getMonth()+1).padStart(2,'0'),String(dt.getDate()).padStart(2,'0')].join('-');
+  }
+
+  async function readHouseholdSpreadsheet(accessToken, spreadsheetId) {
+    const ranges = ["'Dashboard'!B4", "'Dashboard'!B6", "'Dashboard'!B9", "'Dashboard'!B15", "'Dashboard'!A20:F31", "'Expense Log'!A1:H1", "'Expense Log'!A3:H"];
+    const qs = new URLSearchParams();
+    ranges.forEach(r => qs.append('ranges', r));
+    qs.set('valueRenderOption', 'UNFORMATTED_VALUE');
+    qs.set('dateTimeRenderOption', 'FORMATTED_STRING');
+    const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values:batchGet?' + qs;
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: { Authorization: 'Bearer ' + accessToken },
+      cache: 'no-store',
+      referrerPolicy: 'no-referrer'
+    });
+    if (!response.ok) {
+      if (response.status === 403) throw new Error('Access denied. Check the Google account and private Sheet sharing.');
+      if (response.status === 404) throw new Error('Spreadsheet not found. Check the URL or spreadsheet ID.');
+      if (response.status === 401) throw new Error('Google permission expired or was rejected. Connect again.');
+      throw new Error('Google Sheets request failed (HTTP ' + response.status + ').');
+    }
+    const payload = await response.json();
+    const blocks = payload.valueRanges;
+    if (!Array.isArray(blocks) || blocks.length !== ranges.length) throw new Error('Unexpected Google Sheets response.');
+    const cell = i => blocks[i].values?.[0]?.[0];
+    const monthStart = sheetDate(cell(0));
+    if (!monthStart) throw new Error('Dashboard B4 month is blank or unrecognized.');
+    const monthlyBudget = sheetNumber(cell(1), 'Dashboard B6');
+    const totalSpent = sheetNumber(cell(2), 'Dashboard B9');
+    const remainingBalance = sheetNumber(cell(3), 'Dashboard B15');
+    const categories = (blocks[4].values || []).filter(r => String(r[0] || '').trim()).map((r,i) => ({
+      name: String(r[0]).trim(),
+      budget: sheetNumber(r[1], 'Dashboard category budget'),
+      spent: sheetNumber(r[2], 'Dashboard category actual'),
+      remaining: sheetNumber(r[3], 'Dashboard category remaining')
+    }));
+    if (!categories.length) throw new Error('No budget categories found in Dashboard A20:F31.');
+    const headers = blocks[5].values?.[0] || [];
+    if (String(headers[0] || '').trim().toLowerCase() !== 'date' || String(headers[7] || '').trim().toLowerCase() !== 'transaction type') {
+      throw new Error('Expense Log column layout does not match the expected A:H headers.');
+    }
+    const expenses = [];
+    let skippedInvalidAmount = 0, missingDates = 0, unrecognizedDates = 0;
+    (blocks[6].values || []).forEach((r,i) => {
+      if (String(r[7] || '').trim().toUpperCase() !== 'ACTUAL') return;
+      const amount = typeof r[3] === 'number' ? r[3] : Number(String(r[3] || '').replace(/[₱,\s]/g,''));
+      if (!Number.isFinite(amount) || amount <= 0) { skippedInvalidAmount++; return; }
+      const rawDate = r[0];
+      const date = sheetDate(rawDate);
+      if (!date) {
+        if (!rawDate) missingDates++; else unrecognizedDates++;
+      }
+      const spender = String(r[6] || '').trim();
+      expenses.push({
+        date,
+        category: String(r[1] || '').trim() || 'Uncategorized',
+        item: String(r[2] || '').trim() || 'Unspecified purchase',
+        amount,
+        who: /^me$/i.test(spender) ? 'Ely' : /^wife$/i.test(spender) ? 'Rianne' : (spender || 'Unspecified'),
+        method: String(r[4] || '').trim(),
+        notes: String(r[5] || '').trim(),
+        sheetRow: i + 3
+      });
+    });
+    return { monthStart, monthlyBudget, totalSpent, remainingBalance, categories, expenses, missingDates, unrecognizedDates, skippedInvalidAmount };
+  }
+
+  // Real financial data remains empty until Google's read-only API request succeeds.
+  let BUDGETS = {};
+  let CATEGORY_SPENT = {};
+  let expenses = [];
+  let liveDashboard = null;
+  const money = n => '₱' + Number(n).toLocaleString('en-PH', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  const today = new Date();
+  const localDate = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
+  const el = id => document.getElementById(id);
+
+  // Store only the chosen Tally form URL locally. Spreadsheet IDs and Google
+  // tokens are NEVER saved in localStorage or committed to a public repository.
+  const tallyStorageKey = 'homeexpense_tally_form_url_v1';
+  function validTallyUrl(value) {
+    try {
+      const u = new URL(String(value || '').trim());
+      return u.protocol === 'https:' && (u.hostname === 'tally.so' || u.hostname === 'www.tally.so')
+        && u.pathname.startsWith('/r/') && u.pathname.length > 3 ? u.href : '';
+    } catch (_) { return ''; }
+  }
+  function currentTallyUrl() {
+    try { return validTallyUrl(localStorage.getItem(tallyStorageKey) || ''); }
+    catch (_) { return ''; }
+  }
+  function refreshTallyStatus() {
+    const configured = Boolean(currentTallyUrl());
+    el('tally-add-status').textContent = configured
+      ? 'Ready: opens your existing Tally form. Return here and reconnect Google Sheets to refresh the dashboard.'
+      : 'Tally link is not configured. Open Settings and paste your Tally form link.';
+    el('tally-link-status').textContent = configured
+      ? '✓ Link saved on this device. On your other phone, set it again.'
+      : 'Not configured on this device.';
+  }
+  el('save-tally-link-btn').addEventListener('click', () => {
+    const inputUrl = validTallyUrl(el('tally-link-input').value);
+    if (!inputUrl) {
+      el('tally-link-status').textContent = 'Use the share link from your existing Tally form, beginning https://tally.so/r/';
+      return;
+    }
+    try {
+      localStorage.setItem(tallyStorageKey, inputUrl);
+      refreshTallyStatus();
+    } catch (_) {
+      el('tally-link-status').textContent = 'This browser blocked local saving. Try allowing local site storage.';
+    }
+  });
+  el('open-tally-btn').addEventListener('click', () => {
+    const target = currentTallyUrl();
+    if (!target) {
+      navigate('settings');
+      el('tally-link-input').focus();
+      el('tally-link-status').textContent = 'First paste your existing Tally form share link here, then tap Save.';
+      return;
+    }
+    // Open only an HTTPS form hosted on tally.so, without access to this tab.
+    window.open(target, '_blank', 'noopener,noreferrer');
+  });
+  el('tally-link-input').value = currentTallyUrl();
+  refreshTallyStatus();
+  const sum = arr => Math.round(arr.reduce((a,e) => a + e.amount, 0) * 100) / 100;
+  const totalFor = c => CATEGORY_SPENT[c] || 0;
+  const text = (node, value) => { node.textContent = value; };
+  const escapeHtml = value => String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+  const categorySelect = el('category-select');
+  const placeholder = document.createElement('option');
+  placeholder.value = '';
+  placeholder.textContent = 'Connect Google Sheets to load categories';
+  categorySelect.appendChild(placeholder);
+  el('expense-date').value = localDate(today);
+  document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.open)));
+  function navigate(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+    document.querySelectorAll('.nav-btn').forEach(b => {
+      const active = b.dataset.open === name;
+      b.classList.toggle('active', active);
+      if (active) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }
+  function transactionMarkup(e) {
+    return `<div class="transaction"><span class="tx-icon" aria-hidden="true">▤</span><div class="tx-copy"><strong>${escapeHtml(e.item)}</strong><div class="small">${escapeHtml(e.category)} · ${escapeHtml(e.date || 'Date missing')} · ${escapeHtml(e.who)}</div></div><span class="amount">−${money(e.amount)}</span></div>`;
+  }
+  function selectedMonthExpenses() {
+    return liveDashboard ? expenses.filter(e => e.date && e.date.slice(0,7) === liveDashboard.monthStart.slice(0,7)) : [];
+  }
+  function warnings() {
+    return Object.entries(BUDGETS)
+      .filter(([,limit]) => limit > 0)
+      .map(([name,limit]) => ({ name, limit, used: totalFor(name), pct: Math.round(100 * totalFor(name) / limit) }))
+      .filter(x => x.pct >= 80)
+      .sort((a,b) => b.pct - a.pct);
+  }
+  function showDisconnected() {
+    ['budget-total','spent-total','remaining-total','donut-total','insight-total'].forEach(id => text(el(id), '—'));
+    text(el('spent-summary'), 'Connect Google Sheets to view spending');
+    text(el('used-percent'), '—');
+    text(el('insight-percentage'), 'Connect your spreadsheet to see analytics');
+    text(el('month-label'), 'NOT CONNECTED');
+    text(el('app-mode'), 'LIVE DASHBOARD · CONNECT TO GOOGLE SHEETS');
+    el('spending-bar').style.width = '0%';
+    el('home-warning').classList.add('ok');
+    text(el('home-warning'), 'Only real ACTUAL transactions will appear after you connect your spreadsheet.');
+    el('recent-list').innerHTML = '<div class="empty">Connect Google Sheets to view actual transactions.</div>';
+    el('category-budget-list').innerHTML = '<div class="empty">Connect Google Sheets to view category budgets.</div>';
+    el('alert-list').innerHTML = '<div class="empty">Connect Google Sheets to view budget alerts.</div>';
+    el('trend-line').setAttribute('d', '');
+    el('trend-area').setAttribute('d', '');
+    el('donut').style.background = 'conic-gradient(#164861 0 100%)';
+    renderHistory();
+  }
+  function resetLiveData() {
+    liveDashboard = null;
+    BUDGETS = {};
+    CATEGORY_SPENT = {};
+    expenses = [];
+    categorySelect.innerHTML = '';
+    const o = document.createElement('option');
+    o.value = ''; o.textContent = 'Connect Google Sheets to load categories'; categorySelect.appendChild(o);
+    showDisconnected();
+  }
+  function applyLiveData(data) {
+    // Update state only after all requested ranges have been validated.
+    const nextBudgets = {}, nextSpent = {};
+    data.categories.forEach(c => { nextBudgets[c.name] = c.budget; nextSpent[c.name] = c.spent; });
+    BUDGETS = nextBudgets;
+    CATEGORY_SPENT = nextSpent;
+    expenses = data.expenses;
+    liveDashboard = data;
+    categorySelect.innerHTML = '';
+    Object.keys(BUDGETS).forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; categorySelect.appendChild(o); });
+    const problems = [];
+    if (data.missingDates) problems.push(`${data.missingDates} ACTUAL row(s) have blank dates`);
+    if (data.unrecognizedDates) problems.push(`${data.unrecognizedDates} ACTUAL row(s) have unrecognized dates`);
+    if (data.skippedInvalidAmount) problems.push(`${data.skippedInvalidAmount} ACTUAL row(s) have invalid amounts and were skipped`);
+    el('history-notice').textContent = `Showing ACTUAL transactions only; TEST rows excluded.${problems.length ? ' Data check: ' + problems.join('; ') + '.' : ''}`;
+    el('budget-notice').textContent = 'Budget limits and spending figures are read directly from Dashboard. No spreadsheet edits are performed.';
+    paint();
+  }
+  function paint() {
+    if (!liveDashboard) { showDisconnected(); return; }
+    const { monthlyBudget, totalSpent, remainingBalance, monthStart } = liveDashboard;
+    const pct = monthlyBudget > 0 ? (100 * totalSpent / monthlyBudget) : 0;
+    text(el('budget-total'), money(monthlyBudget));
+    text(el('spent-total'), money(totalSpent));
+    text(el('remaining-total'), money(remainingBalance));
+    text(el('donut-total'), money(totalSpent));
+    text(el('insight-total'), money(totalSpent));
+    text(el('insight-percentage'), pct.toFixed(1) + '% of monthly budget used');
+    text(el('spent-summary'), money(totalSpent) + ' spent');
+    text(el('used-percent'), pct.toFixed(1) + '% used');
+    el('spending-bar').style.width = Math.max(0, Math.min(100,pct)).toFixed(1) + '%';
+    const m = new Date(monthStart + 'T12:00:00');
+    text(el('month-label'), m.toLocaleString('en-US', { month: 'long', year: 'numeric' }).toUpperCase());
+    text(el('app-mode'), 'GOOGLE SHEETS · READ-ONLY LIVE DATA');
+    const ws = warnings();
+    const top = totalSpent > monthlyBudget ? {name:'Monthly budget exceeded', pct:Math.round(pct)}
+      : totalSpent >= monthlyBudget*.8 ? {name:'Monthly budget nearing its limit',pct:Math.round(pct)} : ws[0];
+    if (top) {
+      el('home-warning').classList.remove('ok');
+      el('home-warning').innerHTML = `<span class="alert-symbol">⚠</span><div class="warning-message"><strong>BUDGET WARNING</strong>${escapeHtml(top.name)} has reached ${top.pct}% of its limit.</div><span class="rate">${top.pct}%</span>`;
+    } else {
+      el('home-warning').classList.add('ok');
+      el('home-warning').innerHTML = '<span class="alert-symbol">✓</span><div class="warning-message"><strong>SPENDING ON TRACK</strong>No category has reached 80% of its limit.</div>';
+    }
+    const sorted = expenses.slice().sort((a,b) => b.date.localeCompare(a.date));
+    el('recent-list').innerHTML = sorted.length ? sorted.slice(0,4).map(transactionMarkup).join('') : '<div class="empty">No ACTUAL transactions in Expense Log.</div>';
+    renderHistory();
+    const colors = ['#1bdcf3','#8472fa','#ffb166','#11ceb3','#ef70c4','#5286db','#e1d578'];
+    const vals = Object.keys(BUDGETS).map(totalFor).filter(v => v > 0);
+    let cursor = 0;
+    const slices = totalSpent > 0 ? vals.map((v,i) => { const begin=cursor; cursor+= v / totalSpent * 100; return `${colors[i%colors.length]} ${begin.toFixed(2)}% ${Math.min(cursor,100).toFixed(2)}%`; }) : [];
+    if (cursor < 99.9 && cursor > 0) slices.push(`#527082 ${Math.min(cursor,100).toFixed(2)}% 100%`);
+    el('donut').style.background = totalSpent > 0 && slices.length ? 'conic-gradient(' + slices.join(',') + ')' : 'conic-gradient(#164861 0 100%)';
+    el('category-budget-list').innerHTML = Object.entries(BUDGETS).map(([name,limit]) => {
+      const used = totalFor(name), ratio = limit > 0 ? used / limit : 0;
+      return `<div class="budget-row"><div class="budget-head"><span>${escapeHtml(name)}</span><span style="color:${ratio>=.8?'#ffba77':'#8fefff'}">${Math.round(ratio*100)}%</span></div><div class="track"><div class="track-fill ${ratio>=.8?'hot':''}" style="width:${Math.max(0,Math.min(100,ratio*100))}%"></div></div><div class="small">${money(used)} spent / ${money(limit)} limit</div></div>`;
+    }).join('');
+    const alerts = [];
+    if (monthlyBudget > 0 && pct >= 80) alerts.push({name:'Total Monthly Budget', pct:Math.round(pct), used:totalSpent, limit:monthlyBudget});
+    alerts.push(...ws);
+    el('alert-list').innerHTML = alerts.length ? alerts.map(a => `<div class="alert-list-item ${a.pct>100?'danger':''}"><strong>${escapeHtml(a.name)} · ${a.pct}% used</strong><div>${money(a.used)} of ${money(a.limit)} limit</div><div class="small">${a.pct>100?'Exceeded by '+money(a.used-a.limit):'Remaining '+money(a.limit-a.used)}</div></div>`).join('') : '<div class="empty">✓ No category budget warnings at the moment.</div>';
+    renderTrend();
+  }
+  function renderTrend() {
+    const ordered = selectedMonthExpenses().slice().sort((a,b) => a.date.localeCompare(b.date));
+    let running = 0;
+    const totals = [0, ...ordered.map(e => running += e.amount)];
+    const max = Math.max(1, ...totals);
+    const coords = totals.map((v,i) => [20+(265*i/Math.max(1,totals.length-1)), 130-(v/max)*108]);
+    const line = coords.map((p,i) => (i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' ');
+    el('trend-line').setAttribute('d', line);
+    el('trend-area').setAttribute('d', ordered.length ? line+' L 285 130 L 20 130 Z' : '');
+  }
+  function renderHistory() {
+    const query = el('history-search').value.trim().toLowerCase();
+    const filtered = expenses.filter(e => (e.item+' '+e.category+' '+e.who+' '+e.date).toLowerCase().includes(query)).sort((a,b) => b.date.localeCompare(a.date));
+    el('history-list').innerHTML = filtered.length ? filtered.map(transactionMarkup).join('') : `<div class="empty">${liveDashboard?'No matching ACTUAL transactions.':'Connect Google Sheets to view ACTUAL transactions.'}</div>`;
+  }
+  el('history-search').addEventListener('input', renderHistory);
+  // We never save demo or actual expenses from this read-only build.
+  el('expense-form').addEventListener('submit', event => {
+    event.preventDefault();
+    alert('Use Open Tally Expense Form above to record real expenses. Direct in-app saving is not enabled yet.');
+  });
+
+// Small in-app calculator; no external libraries or stored data.
   const overlay=el('calculator-overlay');let current='0',previous=null,operator=null,fresh=false;
   function showCalc(){overlay.hidden=false;current='0';previous=null;operator=null;fresh=false;updateCalc()}
   function updateCalc(){text(el('calc-display'),current==='Error'?'Error':Number(current).toLocaleString('en-PH',{maximumFractionDigits:2}))}
