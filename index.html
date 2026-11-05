@@ -221,6 +221,15 @@
 
   <section id="page-settings" class="page content-page">
     <div class="page-head"><h2>Settings</h2><p class="muted">Your future household app preferences.</p></div>
+    
+<div class="card" id="google-auth-card" style="margin-bottom:13px">
+  <h3>Google Account</h3>
+  <p class="muted" id="google-auth-status" aria-live="polite">
+    Not connected. Google sign-in is being prepared.
+  </p>
+  <div id="google-signin-container"></div>
+</div>
+
     <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Ely and Rianne</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
     <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budget limits come from the planned ₱80,000 allocation. This prototype does not edit your actual Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
     <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are active for sample spending. Phone notifications require later setup.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
