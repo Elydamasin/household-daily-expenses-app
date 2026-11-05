@@ -315,6 +315,25 @@ window.addEventListener('load', () => {
     size: 'large',
     text: 'signin_with'
   });
+  // Prepare Google Sheets read-only authorization.
+  // This does not request access yet.
+  const sheetsButton = document.getElementById('connect-sheets-btn');
+  const sheetsStatus = document.getElementById('sheets-connection-status');
+
+  if (window.google?.accounts?.oauth2 && sheetsButton && sheetsStatus) {
+    const sheetsTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+      callback: (response) => {
+        sheetsStatus.textContent =
+          'Authorization handling is still being prepared.';
+      }
+    });
+
+    // Keep the connection disabled until integration is ready.
+    sheetsButton.disabled = true;
+  }
+
 });
 
   const BUDGETS = {
