@@ -1,0 +1,13 @@
+
+{
+  "name": "HOMEEXPENSE - Household Expenses",
+  "short_name": "HOMEEXPENSE",
+  "description": "Personal household expense tracker for Ely and Rianne.",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B1221",
+  "theme_color": "#0B1221"
+}
