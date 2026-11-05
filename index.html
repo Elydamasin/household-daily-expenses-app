@@ -265,6 +265,38 @@
   
 const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergskkv.apps.googleusercontent.com';
 
+window.addEventListener('load', () => {
+  const status = document.getElementById('google-auth-status');
+  const container = document.getElementById('google-signin-container');
+
+  if (!status || !container) return;
+
+  if (!window.google?.accounts?.id) {
+    status.textContent = 'Google sign-in is unavailable. Please reload.';
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
+    callback: (response) => {
+      if (!response || !response.credential) {
+        status.textContent = 'Google sign-in was not completed.';
+        return;
+      }
+
+      status.textContent =
+        'Google sign-in response received. Secure verification is not yet enabled.';
+    },
+    auto_select: false
+  });
+
+  google.accounts.id.renderButton(container, {
+    theme: 'outline',
+    size: 'large',
+    text: 'signin_with'
+  });
+});
+
   const BUDGETS = {
     'Condominium Rent': 30000, 'Electricity': 10000, 'Food': 20000,
     'Transportation': 3000, 'Internet': 1600, 'Water': 500,
