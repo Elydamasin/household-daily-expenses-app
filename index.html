@@ -347,8 +347,13 @@ callback: (response) => {
       });
     });
 
-    // Keep the connection disabled until integration is ready.
-    sheetsButton.disabled = true;
+
+ // Enable authorization testing only on localhost:8001.
+
+sheetsButton.disabled = !(
+  window.location.hostname === 'localhost' &&
+  window.location.port === '8001'
+);
   }
 
 });
