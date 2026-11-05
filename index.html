@@ -173,7 +173,7 @@
     <div class="page-head"><h2>Add Daily Expense</h2><div class="muted">Record a purchase in your household ledger.</div></div>
     <div class="notice">DEMO MODE — Entries are temporary and are not submitted to Google Sheets or Tally.</div>
     <form class="form-grid" id="expense-form">
-      <div class="form-row"><label>Date<input type="date" name="date" id="expense-date" required></label><label>Spent By<select name="who"><option>Me</option><option>Wife</option></select></label></div>
+      <div class="form-row"><label>Date<input type="date" name="date" id="expense-date" required></label><label>Spent By<select name="who"><option>Ely</option><option>Rianne</option></select></label></div>
       <label>Expense Category<select name="category" id="category-select" required></select></label>
       <label>What did you purchase?<input name="item" maxlength="100" placeholder="e.g. Groceries" required></label>
       <label>Amount (₱)<span class="amount-row"><input type="number" name="amount" id="amount-input" min="0.01" step="0.01" placeholder="0.00" required><button type="button" class="secondary" id="open-calculator" aria-label="Open calculator">▦</button></span></label>
@@ -213,7 +213,7 @@
 
   <section id="page-settings" class="page content-page">
     <div class="page-head"><h2>Settings</h2><p class="muted">Your future household app preferences.</p></div>
-    <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Me and Wife</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
+    <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Ely and Rianne</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
     <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budget limits come from the planned ₱80,000 allocation. This prototype does not edit your actual Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
     <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are active for sample spending. Phone notifications require later setup.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
   </section>
@@ -256,11 +256,11 @@
   const localDate = d => [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
   const daysAgo = n => { const d = new Date(today); d.setDate(d.getDate()-n); return localDate(d); };
   const expenses = [
-    {date:daysAgo(10),category:'Condominium Rent',item:'Rent (sample)',amount:15000,who:'Me',method:'Bank Transfer'},
-    {date:daysAgo(4),category:'Food',item:'Groceries (sample)',amount:3500,who:'Wife',method:'GCash'},
-    {date:daysAgo(3),category:'Electricity',item:'Electric bill (sample)',amount:2000,who:'Me',method:'Bank Transfer'},
-    {date:daysAgo(1),category:'Transportation',item:'Transport fares (sample)',amount:2600,who:'Me',method:'Cash'},
-    {date:daysAgo(0),category:'Eating Out',item:'Coffee (sample)',amount:350,who:'Wife',method:'GCash'}
+    {date:daysAgo(10),category:'Condominium Rent',item:'Rent (sample)',amount:15000,who:'Ely',method:'Bank Transfer'},
+    {date:daysAgo(4),category:'Food',item:'Groceries (sample)',amount:3500,who:'Rianne',method:'GCash'},
+    {date:daysAgo(3),category:'Electricity',item:'Electric bill (sample)',amount:2000,who:'Ely',method:'Bank Transfer'},
+    {date:daysAgo(1),category:'Transportation',item:'Transport fares (sample)',amount:2600,who:'Ely',method:'Cash'},
+    {date:daysAgo(0),category:'Eating Out',item:'Coffee (sample)',amount:350,who:'Rianne',method:'GCash'}
   ];
   const budgetTotal = Object.values(BUDGETS).reduce((a,b)=>a+b,0);
   const el = id => document.getElementById(id);
