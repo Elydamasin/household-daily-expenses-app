@@ -139,6 +139,8 @@
     @media(max-width:390px) { .app { padding-left:14px; padding-right:14px; } .quick-link { padding:15px 13px; min-height:144px; } .budget-hero { padding:21px 18px; } .form-row { grid-template-columns:1fr; } .dual { grid-template-columns:1fr; } }
     @media(prefers-reduced-motion:reduce) { .page { animation:none; } }
   </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+
 </head>
 <body>
 <main class="app">
@@ -219,6 +221,35 @@
 
   <section id="page-settings" class="page content-page">
     <div class="page-head"><h2>Settings</h2><p class="muted">Your future household app preferences.</p></div>
+    
+<div class="card" id="google-auth-card" style="margin-bottom:13px">
+  <h3>Google Account</h3>
+  <p class="muted" id="google-auth-status" aria-live="polite">
+    Not connected. Google sign-in is being prepared.
+  </p>
+  <div id="google-signin-container"></div>
+  
+<button
+  type="button"
+  class="secondary"
+  id="connect-sheets-btn"
+  disabled
+  style="margin-top:13px"
+>
+  Connect Google Sheets (Read-Only)
+</button>
+
+<p
+  class="muted"
+  id="sheets-connection-status"
+  aria-live="polite"
+  style="margin-top:10px"
+>
+  Not connected. No spreadsheet access has been granted.
+</p>
+
+</div>
+
     <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Ely and Rianne</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
     <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budget limits come from the planned ₱80,000 allocation. This prototype does not edit your actual Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
     <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are active for sample spending. Phone notifications require later setup.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
@@ -251,6 +282,82 @@
 
 (() => {
   'use strict';
+  
+const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergskkv.apps.googleusercontent.com';
+
+window.addEventListener('load', () => {
+  const status = document.getElementById('google-auth-status');
+  const container = document.getElementById('google-signin-container');
+
+  if (!status || !container) return;
+
+  if (!window.google?.accounts?.id) {
+    status.textContent = 'Google sign-in is unavailable. Please reload.';
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
+    callback: (response) => {
+      if (!response || !response.credential) {
+        status.textContent = 'Google sign-in was not completed.';
+        return;
+      }
+
+      status.textContent =
+        'Google sign-in response received. Secure verification is not yet enabled.';
+    },
+    auto_select: false
+  });
+
+  google.accounts.id.renderButton(container, {
+    theme: 'outline',
+    size: 'large',
+    text: 'signin_with'
+  });
+  // Prepare Google Sheets read-only authorization.
+  // This does not request access yet.
+  const sheetsButton = document.getElementById('connect-sheets-btn');
+  const sheetsStatus = document.getElementById('sheets-connection-status');
+
+  if (window.google?.accounts?.oauth2 && sheetsButton && sheetsStatus) {
+    const sheetsTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
+      
+callback: (response) => {
+  if (response?.error || !response?.access_token) {
+    sheetsStatus.textContent =
+      'Google Sheets authorization was not completed.';
+    return;
+  }
+
+  sheetsStatus.textContent =
+    'Read-only permission granted. No spreadsheet data has been loaded.';
+}
+
+    });
+
+    sheetsButton.addEventListener('click', () => {
+      sheetsStatus.textContent =
+        'Waiting for Google Sheets read-only authorization...';
+
+      sheetsTokenClient.requestAccessToken({
+        prompt: 'consent'
+      });
+    });
+
+
+ // Enable authorization testing only on localhost:8001.
+
+sheetsButton.disabled = !(
+  window.location.hostname === 'localhost' &&
+  window.location.port === '8001'
+);
+  }
+
+});
+
   const BUDGETS = {
     'Condominium Rent': 30000, 'Electricity': 10000, 'Food': 20000,
     'Transportation': 3000, 'Internet': 1600, 'Water': 500,
