@@ -3,153 +3,233 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#03111e">
-  <title>HOMEEXPENSE | Holographic Finance Control</title>
+  <meta name="theme-color" content="#0b1221">
+  <meta name="description" content="HOMEEXPENSE — Household Expenses finance dashboard prototype">
+  <title>HOMEEXPENSE | Household Expenses</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#020d1a; --panel:#041d30; --cyan:#4be8ff; --blue:#079cd6; --text:#e4faff; --muted:#8fb8c9; --orange:#ffae69; --line:rgba(57,215,255,.45); }
-    * {box-sizing:border-box}
-    html {min-height:100%;background:var(--bg)}
-    body {margin:0;color:var(--text);font-family:Rajdhani,Arial,sans-serif;font-size:17px;background:radial-gradient(ellipse at 50% 55%,rgba(0,131,209,.2),transparent 55%),repeating-linear-gradient(0deg,transparent 0 79px,rgba(19,135,191,.11) 80px 81px),repeating-linear-gradient(90deg,transparent 0 79px,rgba(19,135,191,.09) 80px 81px),#020d1a;}
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
-    .app{width:100%;max-width:620px;min-height:100dvh;margin:auto;position:relative;padding:12px 14px 94px;background:linear-gradient(140deg,rgba(7,65,97,.32),transparent 32%),linear-gradient(0deg,rgba(0,169,235,.15),transparent 24%),rgba(2,16,29,.93);border-left:1px solid var(--line);border-right:1px solid var(--line);box-shadow:0 0 75px rgba(0,148,220,.23);overflow:hidden}
-    .app::before{content:"";position:absolute;pointer-events:none;left:0;right:0;bottom:85px;height:240px;background:repeating-linear-gradient(100deg,transparent 0 49px,rgba(33,181,247,.09) 50px 51px);transform:perspective(180px) rotateX(48deg);transform-origin:bottom;opacity:.6}
-    header{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding:14px 2px 17px;margin-bottom:12px}
-    .brand{text-align:center;min-width:0}
-    .brand h1{font-family:Orbitron,Arial,sans-serif;font-size:clamp(19px,5vw,28px);letter-spacing:.06em;color:#e6ffff;text-shadow:0 0 8px var(--cyan),0 0 24px #00b6ff;margin:0}
-    .brand small{font-family:Orbitron,sans-serif;font-size:8px;letter-spacing:.29em;color:var(--muted)}
-    .top-icon{border:0;color:var(--cyan);font-size:28px;background:transparent;min-width:40px;min-height:44px}
-    .proto{font-family:Orbitron,sans-serif;text-align:center;color:#8dd5eb;letter-spacing:.18em;font-size:9px;margin:16px 0}
-    h2,h3,p{margin-top:0}
-    h2{font:700 18px Orbitron,sans-serif;color:#9cf4ff;text-shadow:0 0 9px rgba(37,211,255,.6);margin:6px 0 16px}
-    h3{font:700 12px Orbitron,sans-serif;color:#88edff;text-shadow:0 0 8px rgba(33,216,255,.7);margin-bottom:15px}
-    .page{display:none;position:relative;z-index:1;animation:appear .22s ease}
-    .page.active{display:block}
-    @keyframes appear{from{opacity:.4;transform:translateY(5px)}to{opacity:1;transform:none}}
-    .stat-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:14px}
-    .holo{background:linear-gradient(145deg,rgba(4,52,79,.8),rgba(2,20,37,.93));border:1px solid var(--line);clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);box-shadow:inset 0 0 25px rgba(0,162,236,.1),0 0 14px rgba(0,180,255,.06);padding:15px 12px;position:relative}
-    .holo::after{content:"";height:2px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);position:absolute;bottom:0;left:8%;width:84%;box-shadow:0 0 12px var(--cyan)}
-    .stat{text-align:center;min-height:120px;padding:12px 5px}
-    .stat .symbol{color:#9fefff;font-size:24px;display:block;line-height:1}
-    .stat .label{font-family:Orbitron,sans-serif;font-size:8px;letter-spacing:.05em;line-height:1.5;min-height:27px;display:flex;align-items:center;justify-content:center;margin:10px 0 6px}
-    .stat .value{font:700 clamp(12px,3vw,20px) Orbitron,sans-serif;color:var(--cyan);text-shadow:0 0 9px #00c3eb;overflow-wrap:anywhere}
-    .warning{border:1px solid #dc8b49;background:linear-gradient(95deg,rgba(88,42,29,.7),rgba(28,28,39,.88));box-shadow:inset 0 0 15px rgba(255,143,66,.1);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;clip-path:polygon(10px 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%,0 10px)}
-    .warning .alert-symbol{font-size:29px;color:var(--orange)}
-    .warning .warning-message{flex:1;min-width:0;font-size:14px}
-    .warning strong{font-family:Orbitron,sans-serif;color:#ffc398;font-size:11px;display:block;margin-bottom:5px}
-    .warning .rate{font:700 16px Orbitron,sans-serif;color:#ffc398}
-    .dual{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
-    .chart-card{min-height:205px;padding:12px 10px}
-    .trend-svg{width:100%;height:133px;overflow:visible}
-    .trend-svg .axis{stroke:#3b9bb6;stroke-width:1}
-    .trend-svg .area{fill:rgba(15,218,255,.1)}
-    .trend-svg .plot{fill:none;stroke:#58eaff;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 5px rgba(0,255,255,.5))}
-    .muted{color:var(--muted);font-size:13px}
-    .donut{margin:8px auto 7px;width:min(148px,100%);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;filter:drop-shadow(0 0 8px rgba(31,206,255,.27))}
-    .donut-center{width:58%;height:58%;background:#041a2b;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center}
-    .donut-center strong{font-size:clamp(12px,2.5vw,19px)}
-    .donut-center span{font-size:11px;color:#add4e7}
-    .section-header{display:flex;justify-content:space-between;align-items:center;gap:10px}
-    .link-btn{border:0;background:none;color:#8fefff;font-weight:700;white-space:nowrap}
-    .transaction{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid rgba(59,187,231,.17);padding:10px 0}
-    .transaction:last-child{border-bottom:0}
-    .transaction strong{font-size:17px}
-    .transaction .amount{white-space:nowrap;font-size:17px;font-weight:700}
-    .small{font-size:12px;color:var(--muted)}
-    .bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(620px,100%);z-index:10;background:rgba(2,20,33,.97);border:1px solid #20bbec;border-bottom:0;box-shadow:0 -5px 28px rgba(0,170,240,.22);display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom))}
-    .nav-btn{background:none;border:0;color:#9ac9dc;min-height:57px;display:flex;align-items:center;justify-content:center;gap:4px;flex-direction:column;font:700 9px Rajdhani,sans-serif;letter-spacing:.04em}
-    .nav-btn span:first-child{font-size:26px;line-height:1}
-    .nav-btn.active{color:#6cf4ff;text-shadow:0 0 10px #35eaff;border-bottom:2px solid #62e9ff}
-    .form-grid{display:grid;gap:12px}
-    label{display:flex;flex-direction:column;gap:5px;font-weight:700;color:#c8ecf5}
-    input,select,textarea{width:100%;border:1px solid rgba(66,194,233,.45);border-radius:5px;background:rgba(0,13,27,.85);color:white;padding:11px;font-size:16px}
-    input::placeholder,textarea::placeholder{color:#7293a5}
-    textarea{resize:vertical;min-height:65px}
-    .primary{border:1px solid #66f2ff;border-radius:5px;background:linear-gradient(90deg,#03678b,#0494c1);box-shadow:0 0 16px rgba(0,196,255,.25);color:#fff;padding:12px;font:700 12px Orbitron,sans-serif;min-height:45px}
-    .secondary{border:1px solid rgba(55,217,255,.55);border-radius:5px;background:#092c40;color:#abf5ff;padding:10px;font-weight:700}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    .notice{border:1px solid rgba(45,196,241,.45);background:rgba(7,57,77,.4);padding:10px;margin-bottom:13px;color:#b3eafa;font-size:13px}
-    .budget-row{padding:12px 0;border-bottom:1px solid rgba(67,181,232,.15)}
-    .budget-head{display:flex;justify-content:space-between;gap:10px;font-weight:700}
-    .track{background:#18374a;height:7px;border-radius:6px;margin:8px 0;overflow:hidden}
-    .track-fill{height:100%;background:linear-gradient(90deg,#1386b4,#60eeff);box-shadow:0 0 10px #09d5ff}
-    .track-fill.hot{background:linear-gradient(90deg,#d9682d,#ffb368)}
-    .alert-list-item{border-left:3px solid #ffaa60;padding:12px;background:rgba(117,54,31,.18);margin-bottom:10px}
-    .alert-list-item.danger{border-color:#ff6565}
-    .empty{padding:20px;text-align:center;color:var(--muted)}
-    .calc-overlay{position:fixed;inset:0;background:rgba(0,5,13,.84);z-index:20;display:grid;place-items:center;padding:18px}
-    [hidden]{display:none!important}
-    .calculator{background:#071a2b;border:1px solid #45d9ff;box-shadow:0 0 40px rgba(0,202,255,.25);width:min(340px,100%);padding:15px;border-radius:12px}
-    .calc-display{text-align:right;font:600 31px Orbitron,sans-serif;color:#93f8ff;min-height:68px;overflow:hidden;overflow-wrap:anywhere}
-    .calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
-    .calc-grid button{border:0;border-radius:8px;background:#1b435b;color:#fff;font:700 22px Rajdhani,sans-serif;min-height:51px}
-    .calc-grid button.op{background:#087ca8}
-    .calc-grid button.utility{background:#596879}
-    .calc-grid .wide{grid-column:span 2}
-    @media(max-width:390px){.app{padding-left:9px;padding-right:9px}.stat{min-height:117px}.chart-card{padding:10px 7px}.brand small{font-size:7px;letter-spacing:.12em}.warning{gap:8px;padding:10px}.warning strong{font-size:9px}}
-    @media(max-width:340px){.stat .value{font-size:11px}.stat .label{font-size:7px}.donut{width:116px}}
-    @media(prefers-reduced-motion:reduce){.page{animation:none}}
+    :root {
+      --bg: #0b1221;
+      --panel: #19253b;
+      --hero: #1b3549;
+      --teal: #5bded0;
+      --teal-dark: #173e47;
+      --text: #f2f6fb;
+      --muted: #9ab0c5;
+      --border: #2c3b51;
+      --orange: #ffbc76;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--bg); min-height: 100%; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.48 Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+    .app { width: 100%; max-width: 600px; min-height: 100dvh; margin: auto; padding: 22px 20px 115px; background: #0b1221; }
+    header { display: flex; align-items: center; gap: 14px; padding-bottom: 25px; border-bottom: 1px solid var(--border); }
+    .brand-icon { width: 53px; height: 53px; border-radius: 17px; background: #173e48; color: var(--teal); display: grid; place-items: center; font-size: 29px; flex-shrink: 0; }
+    .brand { flex: 1; min-width: 0; }
+    .brand .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; color: var(--teal); }
+    .brand h1 { font-size: clamp(19px, 5vw, 25px); font-weight: 650; letter-spacing: -.035em; margin: 2px 0 0; line-height: 1.2; }
+    .top-icon { border: 0; width: 46px; height: 46px; background: #19253b; color: var(--teal); border-radius: 50%; font-size: 25px; display: grid; place-items: center; flex-shrink: 0; }
+    .proto { color: #86abb7; font-size: 11px; margin: 14px 0 0; letter-spacing: .015em; }
+    .page { display: none; animation: appear .18s ease; }
+    .page.active { display: block; }
+    @keyframes appear { from { opacity:.5; transform:translateY(4px) } to { opacity:1; transform:none } }
+    h2, h3, p { margin-top: 0; }
+    h2 { font-size: 25px; line-height: 1.2; letter-spacing: -.03em; margin-bottom: 8px; }
+    h3 { font-size: 17px; font-weight: 700; letter-spacing: -.025em; margin-bottom: 12px; }
+    .month-label { color: var(--muted); font-size: 13px; letter-spacing: .025em; margin-top: 27px; margin-bottom: 8px; }
+    .home-subtitle { color: var(--muted); margin-bottom: 22px; }
+    .budget-hero { display: block; width: 100%; text-align: left; color: var(--text); background: var(--hero); border: 0; border-radius: 22px; padding: 25px 24px 22px; margin-bottom: 14px; }
+    .budget-hero:active, .quick-link:active { filter: brightness(1.12); }
+    .hero-top { display: flex; justify-content: space-between; color: #ade7e0; gap: 10px; align-items: center; }
+    .hero-top .arrow { font-size: 26px; color: var(--teal); }
+    .hero-amount { font-size: clamp(28px, 8vw, 43px); font-weight: 750; letter-spacing: -.055em; margin: 19px 0; line-height: 1.2; overflow-wrap: anywhere; }
+    .hero-stats { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; color: #b9cbdb; }
+    #used-percent { color: var(--teal); font-weight: 650; }
+    .track { height: 8px; background: #3a5668; margin: 15px 0 14px; border-radius: 99px; overflow: hidden; }
+    .track-fill { height: 100%; background: var(--teal); border-radius: inherit; transition: width .2s ease; }
+    .track-fill.hot { background: var(--orange); }
+    .hero-footer { font-size: 12px; color: #b9cbd9; }
+    .mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 13px; }
+    .mini-card { background: var(--panel); border-radius: 16px; padding: 13px 15px; }
+    .mini-card .small { font-size: 11px; }
+    .mini-card strong { display: block; margin-top: 4px; font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
+    .warning { border-left: 3px solid var(--orange); background: #292738; border-radius: 12px; display:flex; align-items:center; gap:10px; padding: 12px; margin: 10px 0 16px; }
+    .warning.ok { border-left-color: var(--teal); background: #172c36; }
+    .warning .alert-symbol { color: var(--orange); font-size: 22px; }
+    .warning.ok .alert-symbol { color: var(--teal); }
+    .warning .warning-message { flex:1; min-width: 0; color: #d0dbe9; font-size: 12px; }
+    .warning strong { font-size: 12px; color: #ffcd91; display: block; margin-bottom: 3px; }
+    .warning.ok strong { color: #97e4d9; }
+    .warning .rate { font-weight:700; color:var(--orange); }
+    .quick-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12px; margin: 16px 0 22px; }
+    .quick-link { background: var(--panel); border: 0; border-radius: 21px; padding: 19px 17px; text-align: left; color: var(--text); min-height: 156px; display:flex; flex-direction:column; align-items:flex-start; gap: 9px; }
+    .quick-icon { width: 44px; height: 44px; border-radius: 13px; background: #214753; color: var(--teal); display:grid; place-items:center; font-size: 25px; }
+    .quick-link:nth-child(2) .quick-icon { background:#363456; color:#bba7ff; }
+    .quick-link:nth-child(4) .quick-icon { background:#58443e; color:#ffc782; }
+    .quick-title { margin-top: 3px; font-weight: 700; font-size: 16px; letter-spacing: -.025em; }
+    .quick-caption { font-size: 12px; color:var(--muted); }
+    .quick-arrow { font-size: 19px; color: var(--teal); margin-top:auto; }
+    .section-header { display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom: 10px; }
+    .section-header h3 { margin:0; }
+    .link-btn { border:0; background:none; padding:6px 0; color:var(--teal); font-weight:600; white-space:nowrap; }
+    .card { padding: 14px 17px; background:var(--panel); border-radius: 17px; }
+    .transaction { display:flex; align-items:center; gap:12px; padding:13px 0; border-bottom:1px solid var(--border); }
+    .transaction:last-child { border-bottom:0; }
+    .tx-icon { flex-shrink:0; width:38px; height:38px; border-radius:11px; background:#204654; color:var(--teal); display:grid; place-items:center; font-size:20px; }
+    .tx-copy { flex:1; min-width:0; }
+    .transaction strong { display:block; font-size:14px; overflow-wrap:anywhere; }
+    .small { font-size:11px; color:var(--muted); }
+    .amount { font-weight:700; font-size:14px; white-space:nowrap; }
+    .bottom-nav { display:grid; grid-template-columns:repeat(5,1fr); position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:min(600px,100%); z-index:10; background:#0b1221; border-top:1px solid var(--border); padding:10px 8px calc(10px + env(safe-area-inset-bottom)); }
+    .nav-btn { border:0; background:none; color:#9eb1c5; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; border-radius:12px; min-height:59px; font-size:10px; }
+    .nav-btn span:first-child { font-size:22px; line-height:1.1; }
+    .nav-btn.active { background:#204750; color:var(--teal); font-weight:700; }
+    .content-page { padding-top: 24px; }
+    .page-head { margin-bottom: 21px; }
+    .muted { color:var(--muted); font-size:13px; }
+    .form-grid { background: var(--panel); padding: 18px; border-radius: 18px; display:grid; gap:15px; }
+    label { display:flex; flex-direction:column; gap:7px; font-weight:600; color:#dce5f0; font-size:13px; }
+    input, select, textarea { border:1px solid #3b4b61; border-radius:10px; background:#101d30; color:white; width:100%; padding:13px 12px; font-size:16px; }
+    input::placeholder, textarea::placeholder { color:#8499ae; }
+    textarea { resize:vertical; min-height:74px; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .amount-row { display:flex; gap:8px; }
+    .amount-row input { min-width:0; }
+    .notice { background:#203747; color:#b9e5e1; font-size:12px; border-radius:11px; padding:12px 13px; margin-bottom:15px; }
+    .primary { border:0; border-radius:12px; background:var(--teal); color:#09242b; font-weight:800; padding:14px; min-height:49px; }
+    .secondary { border:1px solid #4c6875; border-radius:11px; background:#203a49; color:#c5eae6; font-weight:700; padding:11px 13px; }
+    .dual { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:15px 0; }
+    .chart-card { min-width:0; padding:13px; }
+    .chart-card h3 { font-size:13px; }
+    .trend-svg { width:100%; height:128px; overflow:visible; }
+    .trend-svg .axis { stroke:#406379; stroke-width:1; }
+    .trend-svg .area { fill:rgba(91,222,208,.1); }
+    .trend-svg .plot { fill:none; stroke:var(--teal); stroke-width:4; stroke-linecap:round; stroke-linejoin:round; }
+    .donut { margin: 8px auto; width:min(155px,100%); aspect-ratio:1; border-radius:50%; display:grid; place-items:center; }
+    .donut-center { width:62%; height:62%; background:#19253b; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-direction:column; text-align:center; }
+    .donut-center strong { font-size:clamp(11px,2.8vw,17px); }
+    .donut-center span { color:var(--muted); font-size:10px; }
+    .budget-row { padding: 13px 0; border-bottom:1px solid var(--border); }
+    .budget-row:last-child { border-bottom:0; }
+    .budget-head { display:flex; justify-content:space-between; gap:12px; font-weight:700; font-size:13px; }
+    .budget-row .track { margin:9px 0; }
+    .alert-list-item { border-left:3px solid #f0b671; padding:14px; background:#2d2932; border-radius:10px; margin-bottom:10px; }
+    .alert-list-item.danger { border-color:#ff7777; }
+    .empty { padding:23px; text-align:center; color:var(--muted); }
+    .calc-overlay { position:fixed; inset:0; background:rgba(3,7,15,.86); z-index:20; display:grid; place-items:center; padding:18px; }
+    [hidden] { display:none!important; }
+    .calculator { width:min(345px,100%); background:#182539; padding:17px; border-radius:20px; box-shadow:0 25px 65px rgba(0,0,0,.4); }
+    .calc-display { text-align:right; font-size:36px; font-weight:600; min-height:76px; overflow-wrap:anywhere; }
+    .calc-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:7px; }
+    .calc-grid button { border:0; border-radius:12px; min-height:52px; background:#36465d; color:white; font-size:22px; }
+    .calc-grid button.op { background:#217f82; }
+    .calc-grid button.utility { background:#657183; }
+    .calc-grid .wide { grid-column:span 2; }
+    @media(max-width:390px) { .app { padding-left:14px; padding-right:14px; } .quick-link { padding:15px 13px; min-height:144px; } .budget-hero { padding:21px 18px; } .form-row { grid-template-columns:1fr; } .dual { grid-template-columns:1fr; } }
+    @media(prefers-reduced-motion:reduce) { .page { animation:none; } }
   </style>
 </head>
 <body>
-<div class="app">
+<main class="app">
   <header>
-    <button class="top-icon" aria-label="Home" data-open="home">⌂</button>
-    <div class="brand"><h1>HOMEEXPENSE</h1><small>HOUSEHOLD FINANCE CONTROL</small></div>
-    <button class="top-icon" aria-label="Budget alerts" data-open="alerts">♧</button>
+    <span class="brand-icon" aria-hidden="true">▱</span>
+    <div class="brand"><div class="eyebrow">HOMEEXPENSE</div><h1>Household Expenses</h1></div>
+    <button class="top-icon" type="button" data-open="alerts" aria-label="View budget alerts">♧</button>
   </header>
-  <div class="proto">◇ DESIGN PROTOTYPE · SAMPLE DATA ONLY ◇</div>
+  <div class="proto">DESIGN PROTOTYPE · SAMPLE DATA ONLY</div>
 
   <section id="page-home" class="page active">
-    <div class="stat-grid">
-      <div class="holo stat"><span class="symbol">▤</span><div class="label">MONTHLY<br>BUDGET</div><div class="value" id="budget-total">₱80,000</div></div>
-      <div class="holo stat"><span class="symbol">◇</span><div class="label">TOTAL<br>SPENT</div><div class="value" id="spent-total">₱23,450</div></div>
-      <div class="holo stat"><span class="symbol">▣</span><div class="label">REMAINING<br>BALANCE</div><div class="value" id="remaining-total">₱56,550</div></div>
+    <div class="month-label" id="month-label">NOVEMBER 2026</div>
+    <h2>Financial Overview</h2>
+    <p class="home-subtitle">Your household finances at a glance.</p>
+    <button class="budget-hero" type="button" data-open="budget">
+      <span class="hero-top"><span>Available Monthly Budget</span><span class="arrow" aria-hidden="true">›</span></span>
+      <div class="hero-amount" id="remaining-total">₱56,550</div>
+      <div class="hero-stats"><span id="spent-summary">₱23,450 spent</span><span id="used-percent">29.3% used</span></div>
+      <div class="track"><div class="track-fill" id="spending-bar" style="width:29.3%"></div></div>
+      <div class="hero-footer">Tap to view category budgets and spending limits</div>
+    </button>
+    <div class="mini-grid">
+      <div class="mini-card"><div class="small">Monthly budget</div><strong id="budget-total">₱80,000</strong></div>
+      <div class="mini-card"><div class="small">Total spent</div><strong id="spent-total">₱23,450</strong></div>
     </div>
     <div class="warning" id="home-warning" role="status"></div>
-    <div class="dual">
-      <div class="holo chart-card"><h3>⌁ SPENDING TREND</h3><svg id="trend-chart" class="trend-svg" viewBox="0 0 300 150" role="img" aria-label="Cumulative expenses trend"><line class="axis" x1="20" y1="130" x2="285" y2="130"/><line class="axis" x1="20" y1="15" x2="20" y2="130"/><path class="area" id="trend-area" d=""/><path class="plot" id="trend-line" d=""/></svg><div class="muted">Demo expense timeline</div></div>
-      <div class="holo chart-card"><h3>◉ CATEGORY BREAKDOWN</h3><div class="donut" id="donut"><div class="donut-center"><strong id="donut-total">₱23,450</strong><span>SPENT</span></div></div><div class="muted" style="text-align:center">Expense distribution</div></div>
+    <div class="quick-grid">
+      <button class="quick-link" type="button" data-open="add"><span class="quick-icon">＋</span><span class="quick-title">Add Expense</span><span class="quick-caption">Record a purchase</span><span class="quick-arrow">↗</span></button>
+      <button class="quick-link" type="button" data-open="history"><span class="quick-icon">▤</span><span class="quick-title">Expense Log</span><span class="quick-caption">Review transactions</span><span class="quick-arrow">↗</span></button>
+      <button class="quick-link" type="button" data-open="insights"><span class="quick-icon">⌁</span><span class="quick-title">Analytics</span><span class="quick-caption">Charts and insights</span><span class="quick-arrow">↗</span></button>
+      <button class="quick-link" type="button" data-open="budget"><span class="quick-icon">◎</span><span class="quick-title">My Budget</span><span class="quick-caption">Limits by category</span><span class="quick-arrow">↗</span></button>
     </div>
-    <div class="holo"><div class="section-header"><h3>▤ RECENT EXPENSES</h3><button class="link-btn" data-open="history">VIEW ALL →</button></div><div id="recent-list"></div></div>
+    <div class="section-header"><h3>Recent Transactions</h3><button type="button" class="link-btn" data-open="history">View All →</button></div>
+    <div class="card" id="recent-list"></div>
   </section>
 
-  <section id="page-add" class="page">
-    <h2>ADD DAILY EXPENSE</h2>
-    <div class="notice">DEMO MODE — Entries here are temporary and are not submitted to Google Sheets or Tally.</div>
-    <form class="holo form-grid" id="expense-form">
+  <section id="page-add" class="page content-page">
+    <div class="page-head"><h2>Add Daily Expense</h2><div class="muted">Record a purchase in your household ledger.</div></div>
+    <div class="notice">DEMO MODE — Entries are temporary and are not submitted to Google Sheets or Tally.</div>
+    <form class="form-grid" id="expense-form">
       <div class="form-row"><label>Date<input type="date" name="date" id="expense-date" required></label><label>Spent By<select name="who"><option>Me</option><option>Wife</option></select></label></div>
       <label>Expense Category<select name="category" id="category-select" required></select></label>
       <label>What did you purchase?<input name="item" maxlength="100" placeholder="e.g. Groceries" required></label>
-      <label>Amount (₱)<div style="display:flex;gap:8px"><input type="number" name="amount" id="amount-input" min="0.01" step="0.01" placeholder="0.00" required><button type="button" class="secondary" id="open-calculator" aria-label="Open calculator">⌗</button></div></label>
+      <label>Amount (₱)<span class="amount-row"><input type="number" name="amount" id="amount-input" min="0.01" step="0.01" placeholder="0.00" required><button type="button" class="secondary" id="open-calculator" aria-label="Open calculator">▦</button></span></label>
       <label>Payment Method<select name="method"><option>Cash</option><option>GCash</option><option>Credit Card</option><option>Debit Card</option><option>Bank Transfer</option><option>Other</option></select></label>
       <label>Notes (optional)<textarea name="notes" placeholder="Additional details"></textarea></label>
-      <button class="primary" type="submit">+ SAVE DEMO EXPENSE</button>
+      <button class="primary" type="submit">SAVE DEMO EXPENSE</button>
     </form>
   </section>
 
-  <section id="page-history" class="page"><h2>EXPENSE HISTORY</h2><div class="notice">Sample records, plus any demo expenses added during this visit.</div><label>Search transactions<input id="history-search" placeholder="Search item or category"></label><div class="holo" id="history-list" style="margin-top:12px"></div></section>
+  <section id="page-history" class="page content-page">
+    <div class="page-head"><h2>Expense History</h2><p class="muted">Browse and search household purchases.</p></div>
+    <div class="notice">Sample records plus any demo expenses added during this visit.</div>
+    <label>Search transactions<input id="history-search" placeholder="Search item or category"></label>
+    <div class="card" id="history-list" style="margin-top:14px"></div>
+  </section>
 
-  <section id="page-insights" class="page"><h2>FINANCIAL INSIGHTS</h2><div class="holo" style="margin-bottom:12px"><div class="muted">MONTHLY SPENDING</div><div style="font:700 27px Orbitron,sans-serif;color:var(--cyan)" id="insight-total">₱23,450</div><div class="muted" id="insight-percentage">29.3% of monthly budget used</div></div><div class="holo"><h3>◉ CATEGORY LIMITS</h3><div id="category-budget-list"></div></div></section>
+  <section id="page-insights" class="page content-page">
+    <div class="page-head"><h2>Spending Analytics</h2><div class="muted">A clear picture of where your money goes.</div></div>
+    <div class="card" style="margin-bottom:13px"><div class="muted">Total Spent</div><div style="font-size:30px;font-weight:750;margin:7px 0" id="insight-total">₱23,450</div><div class="muted" id="insight-percentage">29.3% of monthly budget used</div></div>
+    <div class="dual">
+      <div class="card chart-card"><h3>Spending Trend</h3><svg id="trend-chart" class="trend-svg" viewBox="0 0 300 150" role="img" aria-label="Cumulative expenses trend"><line class="axis" x1="20" y1="130" x2="285" y2="130"/><line class="axis" x1="20" y1="15" x2="20" y2="130"/><path class="area" id="trend-area" d=""/><path class="plot" id="trend-line" d=""/></svg><div class="muted">Illustrative expense timeline</div></div>
+      <div class="card chart-card"><h3>Category Breakdown</h3><div class="donut" id="donut"><div class="donut-center"><strong id="donut-total">₱23,450</strong><span>SPENT</span></div></div><div class="muted" style="text-align:center">Spending distribution</div></div>
+    </div>
+  </section>
 
-  <section id="page-alerts" class="page"><h2>BUDGET ALERTS</h2><div class="notice">Alerts are generated from demo spending amounts. They are not phone push notifications.</div><div id="alert-list"></div></section>
-</div>
+  <section id="page-budget" class="page content-page">
+    <div class="page-head"><h2>My Budget</h2><p class="muted">Your category spending limits and remaining amounts.</p></div>
+    <div class="notice">Sample spending is compared against your planned ₱80,000 budget.</div>
+    <div class="card"><h3>Category Budgets</h3><div id="category-budget-list"></div></div>
+  </section>
+
+  <section id="page-alerts" class="page content-page">
+    <div class="page-head"><h2>Budget Alerts</h2><p class="muted">Warnings for categories reaching 80% or more of their limits.</p></div>
+    <div class="notice">Demo alerts only. Phone push notifications are not enabled.</div>
+    <div id="alert-list"></div>
+  </section>
+
+  <section id="page-settings" class="page content-page">
+    <div class="page-head"><h2>Settings</h2><p class="muted">Your future household app preferences.</p></div>
+    <div class="card" style="margin-bottom:13px"><h3>Household Members</h3><div>Me and Wife</div><div class="muted">Shared access will be configured when secure sign-in is built.</div></div>
+    <div class="card" style="margin-bottom:13px"><h3>Budget Preferences</h3><div class="muted">Budget limits come from the planned ₱80,000 allocation. This prototype does not edit your actual Google Sheets.</div><button class="secondary" type="button" data-open="budget" style="margin-top:13px">View Category Budgets</button></div>
+    <div class="card"><h3>Notification Settings</h3><div class="muted">In-app budget alerts are active for sample spending. Phone notifications require later setup.</div><button class="secondary" type="button" data-open="alerts" style="margin-top:13px">View Alerts</button></div>
+  </section>
+</main>
 
 <nav class="bottom-nav" aria-label="Main navigation">
-  <button class="nav-btn active" data-open="home"><span>⌂</span>HOME</button>
-  <button class="nav-btn" data-open="add"><span>⊕</span>ADD</button>
-  <button class="nav-btn" data-open="history"><span>◴</span>HISTORY</button>
-  <button class="nav-btn" data-open="insights"><span>▥</span>INSIGHTS</button>
-  <button class="nav-btn" data-open="alerts"><span>♧</span>ALERTS</button>
+  <button class="nav-btn active" type="button" data-open="home"><span aria-hidden="true">⌂</span>Home</button>
+  <button class="nav-btn" type="button" data-open="add"><span aria-hidden="true">⊕</span>Add</button>
+  <button class="nav-btn" type="button" data-open="history"><span aria-hidden="true">▤</span>History</button>
+  <button class="nav-btn" type="button" data-open="insights"><span aria-hidden="true">◴</span>Insights</button>
+  <button class="nav-btn" type="button" data-open="settings"><span aria-hidden="true">⚙</span>Settings</button>
 </nav>
 
 <div class="calc-overlay" id="calculator-overlay" hidden>
   <div class="calculator" role="dialog" aria-modal="true" aria-label="Expense calculator">
-    <div class="section-header"><h3>EXPENSE CALCULATOR</h3><button class="secondary" id="close-calculator" type="button">CLOSE</button></div>
+    <div class="section-header"><h3>Expense Calculator</h3><button class="secondary" id="close-calculator" type="button">Close</button></div>
     <div class="calc-display" id="calc-display">0</div>
     <div class="calc-grid" id="calc-keys">
       <button class="utility" data-key="AC">AC</button><button class="utility" data-key="sign">+/−</button><button class="utility" data-key="%">%</button><button class="op" data-key="/">÷</button>
@@ -161,8 +241,8 @@
     <button class="primary" id="use-total" type="button" style="margin-top:12px;width:100%">USE TOTAL IN FORM</button>
   </div>
 </div>
-
 <script>
+
 (() => {
   'use strict';
   const BUDGETS = {
@@ -196,9 +276,9 @@
   function navigate(name){
     document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+name));
     document.querySelectorAll('.nav-btn').forEach(b=>{const active=b.dataset.open===name;b.classList.toggle('active',active);if(active)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current')});
-    window.scrollTo({top:0,behavior:'instant'});
+    window.scrollTo({top:0,behavior:'auto'});
   }
-  function transactionMarkup(e){return `<div class="transaction"><div><strong>${escapeHtml(e.item)}</strong><div class="small">${escapeHtml(e.category)} · ${escapeHtml(e.date)} · ${escapeHtml(e.who)}</div></div><span class="amount">−${money(e.amount)}</span></div>`;}
+  function transactionMarkup(e){return `<div class="transaction"><span class="tx-icon" aria-hidden="true">▤</span><div class="tx-copy"><strong>${escapeHtml(e.item)}</strong><div class="small">${escapeHtml(e.category)} · ${escapeHtml(e.date)} · ${escapeHtml(e.who)}</div></div><span class="amount">−${money(e.amount)}</span></div>`;}
   function warnings(){
     return Object.entries(BUDGETS).map(([name,limit])=>({name,limit,used:totalFor(name),pct:Math.round(100*totalFor(name)/limit)})).filter(x=>x.pct>=80).sort((a,b)=>b.pct-a.pct);
   }
@@ -206,10 +286,14 @@
     const spent=sum(expenses),pct=100*spent/budgetTotal,remaining=budgetTotal-spent;
     text(el('budget-total'),money(budgetTotal));text(el('spent-total'),money(spent));text(el('remaining-total'),money(remaining));text(el('donut-total'),money(spent));
     text(el('insight-total'),money(spent));text(el('insight-percentage'),pct.toFixed(1)+'% of monthly budget used');
+    text(el('spent-summary'),money(spent)+' spent');
+    text(el('used-percent'),pct.toFixed(1)+'% used');
+    el('spending-bar').style.width=Math.max(0,Math.min(100,pct)).toFixed(1)+'%';
+    text(el('month-label'),today.toLocaleString('en-US',{month:'long',year:'numeric'}).toUpperCase());
     const w=warnings();
     const topWarning=spent>budgetTotal?{name:'Monthly budget exceeded',pct:Math.round(pct),used:spent,limit:budgetTotal}:spent>=budgetTotal*.8?{name:'Monthly budget nearing its limit',pct:Math.round(pct),used:spent,limit:budgetTotal}:w[0];
-    if(topWarning){el('home-warning').innerHTML=`<span class="alert-symbol">⚠</span><div class="warning-message"><strong>${topWarning.name==='Monthly budget exceeded'?'MONTHLY BUDGET EXCEEDED':topWarning.name==='Monthly budget nearing its limit'?'MONTHLY BUDGET WARNING':'CATEGORY BUDGET WARNING'}</strong>${escapeHtml(topWarning.name)} has reached ${topWarning.pct}% of its limit.</div><span class="rate">${topWarning.pct}%</span>`;}
-    else{el('home-warning').innerHTML='<span class="alert-symbol">◇</span><div class="warning-message"><strong>BUDGET STATUS NORMAL</strong>No categories have reached 80% of their limit.</div>';}
+    if(topWarning){el('home-warning').classList.remove('ok');el('home-warning').innerHTML=`<span class="alert-symbol">⚠</span><div class="warning-message"><strong>${topWarning.name==='Monthly budget exceeded'?'MONTHLY BUDGET EXCEEDED':topWarning.name==='Monthly budget nearing its limit'?'MONTHLY BUDGET WARNING':'CATEGORY BUDGET WARNING'}</strong>${escapeHtml(topWarning.name)} has reached ${topWarning.pct}% of its limit.</div><span class="rate">${topWarning.pct}%</span>`;}
+    else{el('home-warning').classList.add('ok');el('home-warning').innerHTML='<span class="alert-symbol">✓</span><div class="warning-message"><strong>SPENDING ON TRACK</strong>No category has reached 80% of its limit.</div>';}
     const sorted=expenses.slice().sort((a,b)=>b.date.localeCompare(a.date));
     el('recent-list').innerHTML=sorted.slice(0,4).map(transactionMarkup).join('');
     renderHistory();
@@ -256,7 +340,7 @@
     if(/^[0-9]$/.test(key)){if(fresh||current==='0'){current=key;fresh=false}else if(current.replace(/[-.]/g,'').length<10){current+=key}}
     else if(key==='.'){if(fresh){current='0.';fresh=false}else if(!current.includes('.'))current+='.'}
     else if(key==='sign')current=String(-Number(current));
-    else if(key==='%')current=String(Math.round(Number(current))/100);
+    else if(key==='%')current=String(Math.round((Number(current)/100+Number.EPSILON)*100)/100);
     else if(['+','-','*','/'].includes(key)){
       if(operator!==null&&!fresh){const x=compute(previous,Number(current),operator);current=Number.isFinite(x)?String(x):'Error'}
       if(current==='Error'){previous=null;operator=null;updateCalc();return}
@@ -271,6 +355,7 @@
   el('use-total').addEventListener('click',()=>{const n=Number(current);if(!Number.isFinite(n)||n<=0){alert('Calculate a positive amount first.');return}el('amount-input').value=n.toFixed(2);overlay.hidden=true});
   paint();
 })();
+
 </script>
 </body>
 </html>
