@@ -324,10 +324,18 @@ window.addEventListener('load', () => {
     const sheetsTokenClient = google.accounts.oauth2.initTokenClient({
       client_id: HOMEEXPENSE_GOOGLE_CLIENT_ID,
       scope: 'https://www.googleapis.com/auth/spreadsheets.readonly',
-      callback: (response) => {
-        sheetsStatus.textContent =
-          'Authorization handling is still being prepared.';
-      }
+      
+callback: (response) => {
+  if (response?.error || !response?.access_token) {
+    sheetsStatus.textContent =
+      'Google Sheets authorization was not completed.';
+    return;
+  }
+
+  sheetsStatus.textContent =
+    'Read-only permission granted. No spreadsheet data has been loaded.';
+}
+
     });
 
     // Keep the connection disabled until integration is ready.
