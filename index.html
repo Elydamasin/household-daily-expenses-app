@@ -241,7 +241,7 @@
   <label for="spreadsheet-input" style="margin-top:16px">Household spreadsheet link or ID
     <input id="spreadsheet-input" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste your private Google Sheets URL or spreadsheet ID">
   </label>
-  <p class="muted" style="margin-top:9px">Enter it here privately; it will not be committed to GitHub or stored on this device.</p>
+  <p class="muted" style="margin-top:9px">Your spreadsheet ID is saved on this device after a successful connection. Google passwords, access tokens, and financial transactions are not stored here.</p>
   
 <button
   type="button"
@@ -319,6 +319,25 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
     const sheetsStatus = document.getElementById('sheets-connection-status');
     const spreadsheetInput = document.getElementById('spreadsheet-input');
     if (!identityStatus || !identityContainer || !sheetsButton || !sheetsStatus || !spreadsheetInput) return;
+    // Restore only the previously verified spreadsheet ID.
+    // Never restore or store Google access tokens.
+    try {
+      const savedId = localStorage.getItem(
+        'homeexpense.savedSheetId.v1'
+      );
+
+      if (
+        savedId &&
+        /^[A-Za-z0-9_-]{20,}$/.test(savedId)
+      ) {
+        spreadsheetInput.value = savedId;
+        sheetsStatus.textContent =
+          'Saved spreadsheet loaded. Tap Connect Google Sheets.';
+      }
+    } catch (_) {
+      // Manual connection remains available if storage is blocked.
+    }
+
 
     // Permit only our known development and GitHub Pages origins. Google OAuth
     // and private spreadsheet sharing enforce data access; this is not login security.
@@ -363,6 +382,18 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
         try {
           const data = await readHouseholdSpreadsheet(response.access_token, requestedSpreadsheetId);
           applyLiveData(data);
+          
+          // Remember only the successfully connected spreadsheet ID.
+          // Never store Google access tokens or financial records.
+          try {
+            localStorage.setItem(
+              'homeexpense.savedSheetId.v1',
+              requestedSpreadsheetId
+            );
+          } catch (_) {
+            // Connection still works if device storage is unavailable.
+          }
+
           sheetsStatus.textContent = `Read-only connection successful. ${data.expenses.length} ACTUAL transactions loaded.`;
           // An approved token is deliberately not persisted. Reconnect to refresh data.
         } catch (err) {
@@ -393,7 +424,7 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
       busy = true;
       sheetsButton.disabled = true;
       sheetsStatus.textContent = 'Waiting for Google to grant read-only permission...';
-      tokenClient.requestAccessToken({ prompt: 'consent' });
+      tokenClient.requestAccessToken({ prompt: '' });
     });
   });
 
