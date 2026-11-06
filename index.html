@@ -363,6 +363,18 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
         try {
           const data = await readHouseholdSpreadsheet(response.access_token, requestedSpreadsheetId);
           applyLiveData(data);
+          
+          // Remember only the successfully connected spreadsheet ID.
+          // Never store Google access tokens or financial records.
+          try {
+            localStorage.setItem(
+              'homeexpense.savedSheetId.v1',
+              requestedSpreadsheetId
+            );
+          } catch (_) {
+            // Connection still works if device storage is unavailable.
+          }
+
           sheetsStatus.textContent = `Read-only connection successful. ${data.expenses.length} ACTUAL transactions loaded.`;
           // An approved token is deliberately not persisted. Reconnect to refresh data.
         } catch (err) {
