@@ -424,7 +424,7 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
       busy = true;
       sheetsButton.disabled = true;
       sheetsStatus.textContent = 'Waiting for Google to grant read-only permission...';
-      tokenClient.requestAccessToken({ prompt: 'consent' });
+      tokenClient.requestAccessToken({ prompt: '' });
     });
   });
 
