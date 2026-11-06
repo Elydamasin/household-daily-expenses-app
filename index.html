@@ -432,7 +432,7 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
     const qs = new URLSearchParams();
     ranges.forEach(r => qs.append('ranges', r));
     qs.set('valueRenderOption', 'UNFORMATTED_VALUE');
-    qs.set('dateTimeRenderOption', 'FORMATTED_STRING');
+    qs.set('dateTimeRenderOption', 'SERIAL_NUMBER');
     const url = 'https://sheets.googleapis.com/v4/spreadsheets/' + encodeURIComponent(spreadsheetId) + '/values:batchGet?' + qs;
     const response = await fetch(url, {
       method: 'GET',
