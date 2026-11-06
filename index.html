@@ -319,6 +319,25 @@ const HOMEEXPENSE_GOOGLE_CLIENT_ID = '765395400252-37apdo9h2m37kfpv2tqt6sbvtergs
     const sheetsStatus = document.getElementById('sheets-connection-status');
     const spreadsheetInput = document.getElementById('spreadsheet-input');
     if (!identityStatus || !identityContainer || !sheetsButton || !sheetsStatus || !spreadsheetInput) return;
+    // Restore only the previously verified spreadsheet ID.
+    // Never restore or store Google access tokens.
+    try {
+      const savedId = localStorage.getItem(
+        'homeexpense.savedSheetId.v1'
+      );
+
+      if (
+        savedId &&
+        /^[A-Za-z0-9_-]{20,}$/.test(savedId)
+      ) {
+        spreadsheetInput.value = savedId;
+        sheetsStatus.textContent =
+          'Saved spreadsheet loaded. Tap Connect Google Sheets.';
+      }
+    } catch (_) {
+      // Manual connection remains available if storage is blocked.
+    }
+
 
     // Permit only our known development and GitHub Pages origins. Google OAuth
     // and private spreadsheet sharing enforce data access; this is not login security.
